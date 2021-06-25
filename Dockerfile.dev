@@ -1,3 +1,4 @@
+# base image
 FROM node:10
 
 # set the work directory
@@ -21,7 +22,8 @@ COPY . .
 # builing Angular UI
 RUN cd WebApp && npm run build
 
+# expose the container port where the app will listen
 EXPOSE 3070
 
-ENTRYPOINT ["node"]
-CMD ["index.js"]
+# container run command
+CMD ["node", "index.js"]
