@@ -1,16 +1,11 @@
-FROM node:10 AS ui-build
+# initial build stage (naming is not mandatory)
+FROM node:10 AS build
 WORKDIR /usr/src/app
 COPY WebApp/ ./WebApp/
 RUN cd WebApp && npm install @angular/cli && npm install && npm run build
 
-FROM node:10 AS server-build
-WORKDIR /root/
-COPY --from=ui-build /usr/src/app/WebApp/dist ./WebApp/dist
-COPY package*.json ./
-RUN npm install
-COPY index.js .
-
-EXPOSE 3070
-
-ENTRYPOINT ["node"]
-CMD ["index.js"]
+# second stage, prepare the final image
+FROM nginx:1.19
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /usr/src/app/WebApp/dist/*  /usr/share/nginx/html/
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
